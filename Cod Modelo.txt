@@ -1,0 +1,148 @@
+-- MySQL Workbench Synchronization
+-- Generated: 2024-05-22 22:24
+-- Model: New Model
+-- Version: 1.0
+-- Project: Name of the project
+-- Author: washington
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+CREATE SCHEMA IF NOT EXISTS `redesocial` DEFAULT CHARACTER SET utf8 ;
+
+CREATE TABLE IF NOT EXISTS `redesocial`.`t_usuario_post` (
+  `id_usuario_post` BIGINT(20) NOT NULL,
+  `id_usuario` BIGINT(20) NOT NULL,
+  `mensagem` VARCHAR(300) NOT NULL,
+  `dt_criado` DATETIME NULL DEFAULT NULL,
+  `dt_atualizado` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`id_usuario_post`),
+  INDEX `fk_t_usuario_t_usuario_post_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_t_usuario_t_usuario_post`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `redesocial`.`t_usuario` (
+  `id_usuario` BIGINT(20) NOT NULL,
+  `nome` VARCHAR(60) NOT NULL,
+  `apelido` VARCHAR(50) NULL DEFAULT NULL,
+  `nascimento` DATETIME NOT NULL,
+  `intro` TINYTEXT NULL DEFAULT NULL,
+  `profile` TEXT NULL DEFAULT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `celular` VARCHAR(15) NOT NULL,
+  `senha_hash` VARCHAR(45) NOT NULL,
+  `dt_registrado` DATETIME NULL DEFAULT NULL,
+  `dt_ultimo_login` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `senha_hash_UNIQUE` (`senha_hash` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `redesocial`.`t_usuario_amigo` (
+  `id_usuario_1` BIGINT(20) NOT NULL,
+  `id_usuario_2` BIGINT(20) NOT NULL,
+  `status` SMALLINT(6) NOT NULL,
+  `dt_criado` DATETIME NULL DEFAULT NULL,
+  `dt_atualizado` DATETIME NULL DEFAULT NULL,
+  `nota` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_usuario_1`, `id_usuario_2`),
+  INDEX `fk_t_usuario_t_usuario_amigo_2_idx` (`id_usuario_2` ASC) VISIBLE,
+  CONSTRAINT `fk_t_usuario_t_usuario_amigo_1`
+    FOREIGN KEY (`id_usuario_1`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_t_usuario_t_usuario_amigo_2`
+    FOREIGN KEY (`id_usuario_2`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `redesocial`.`t_grupo_post` (
+  `id_grupo_post` BIGINT(20) NOT NULL,
+  `id_grupo` BIGINT(2) NOT NULL,
+  `id_usuario` BIGINT(20) NOT NULL,
+  `mensagem` TINYTEXT NOT NULL,
+  `dt_criado` DATETIME NULL DEFAULT NULL,
+  `dt_atualizado` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`id_grupo_post`),
+  INDEX `fk_t_grupo_t_grupo_post_idx` (`id_grupo` ASC) VISIBLE,
+  INDEX `fk_t_usuario_t_grupo_post_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_t_grupo_t_grupo_post`
+    FOREIGN KEY (`id_grupo`)
+    REFERENCES `redesocial`.`t_grupo` (`id_grupo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_t_usuario_t_grupo_post`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `redesocial`.`t_grupo` (
+  `id_grupo` BIGINT(20) NOT NULL,
+  `id_criado_por` BIGINT(20) NOT NULL,
+  `id_atualizado_por` BIGINT(20) NOT NULL,
+  `titulo` VARCHAR(75) NOT NULL,
+  `sumario` TINYTEXT NOT NULL,
+  `status` VARCHAR(45) NOT NULL,
+  `dt_criado` DATETIME NULL DEFAULT NULL,
+  `dt_atualizado` DATETIME NULL DEFAULT NULL,
+  `profile` TEXT NOT NULL,
+  `conteudo` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_grupo`),
+  INDEX `fk_t_usuario_t_grupo_criado_idx` (`id_criado_por` ASC) VISIBLE,
+  INDEX `fk_t_usuario_t_grupo_atualizado_idx` (`id_atualizado_por` ASC) VISIBLE,
+  CONSTRAINT `fk_t_usuario_t_grupo_criado`
+    FOREIGN KEY (`id_criado_por`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_t_usuario_t_grupo_atualizado`
+    FOREIGN KEY (`id_atualizado_por`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `redesocial`.`t_grupo_membro` (
+  `id_grupo_membro` BIGINT(20) NOT NULL,
+  `id_grupo` BIGINT(20) NOT NULL,
+  `id_usuario` BIGINT(20) NOT NULL,
+  `permissao` SMALLINT(6) NOT NULL,
+  `status` SMALLINT(6) NOT NULL,
+  `dt_criado` DATETIME NULL DEFAULT NULL,
+  `dt_atualizado` DATETIME NULL DEFAULT NULL,
+  `notas` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_grupo_membro`),
+  INDEX `fk_t_grupo_t_grupo_membro_idx` (`id_grupo` ASC) VISIBLE,
+  INDEX `fk_t_usuario_t_grupo_membro_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_t_grupo_t_grupo_membro`
+    FOREIGN KEY (`id_grupo`)
+    REFERENCES `redesocial`.`t_grupo` (`id_grupo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_t_usuario_t_grupo_membro`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `redesocial`.`t_usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
